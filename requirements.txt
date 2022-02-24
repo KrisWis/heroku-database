@@ -1,3 +1,6 @@
 pyTelegramBotAPI
+requests
+mechanicalsoup
+selenium
 flask
 psycopg2
