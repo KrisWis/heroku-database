@@ -17,7 +17,8 @@ bot = telebot.TeleBot(BOT_TOKEN)
 server = Flask(__name__)
 logger = telebot.logger
 logger.setLevel(logging.DEBUG)
-db_connection = psycopg2.connect(DB_URI,sslmode="require")
+
+db_connection = psycopg2.connect(DB_URI, sslmode="require")
 db_object = db_connection.cursor()
 
 
@@ -69,24 +70,18 @@ def gdz_API(result):
         handler.write(img_data)
 
 
-@server.route(f'/{BOT_TOKEN}', methods=['POST'])
 
-def redirect_message():
-    json_string = request.get_data().decode("utf-8")
-    update = telebot.types.Update.de_json(json_string)
-    bot.process_new_updates([update])
-    return "!", 200
 
 @bot.message_handler(content_types=['text'])
 
 def start(message):
     global stop
     id = message.from_user.id
-    db_object.execute(f"SELECT id FROM users WHERE id = {id}")
+    db_object.execute(f"SELECT id FROM users WHERE id = {user_id}")
     result = db_object.fetchone()
 
     if not result:
-        db_object.execute("INSERT INTO users(id, username, messages) VALUES (%s, %s, %s)", (id, username, 0))
+        db_object.execute("INSERT INTO users(id, username, messages) VALUES (%s, %s, %s)", (user_id, username, 0))
         db_connection.commit()
 
     if message.text == '/start':
@@ -151,6 +146,13 @@ def recheck(message):
         bot.send_photo(message.chat.id, photo, rand_phrase2)
         bot.register_next_step_handler(message,recheck)
 
+@server.route(f'/{BOT_TOKEN}', methods=['POST'])
+
+def redirect_message():
+    json_string = request.get_data().decode("utf-8")
+    update = telebot.types.Update.de_json(json_string)
+    bot.process_new_updates([update])
+    return "!", 200
 
 if __name__ == "__main__":
     bot.remove_webhook()
