@@ -1,10 +1,8 @@
 import random
 import os
 import telebot
-import requests
-import mechanicalsoup
-import selenium
-from selenium.webdriver.common.by import By
+
+
 import logging
 from config import *
 from flask import Flask, request
@@ -25,6 +23,8 @@ db_object = db_connection.cursor()
 name_subject = ''
 class_subject = ''
 author = ''
+
+
 
 
 @bot.message_handler(content_types=['text'])
