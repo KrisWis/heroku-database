@@ -1,9 +1,15 @@
+import random
 import os
 import telebot
+import requests
+import mechanicalsoup
+import selenium
+from selenium.webdriver.common.by import By
 import logging
-import psycopg2
 from config import *
 from flask import Flask, request
+import psycopg2
+
 
 bot = telebot.TeleBot(BOT_TOKEN)
 server = Flask(__name__)
