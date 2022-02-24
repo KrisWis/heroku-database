@@ -68,6 +68,15 @@ def gdz_API(result):
     with open('gdz_image.jpg', 'wb') as handler:
         handler.write(img_data)
 
+
+@server.route(f'/{BOT_TOKEN}', methods=['POST'])
+
+def redirect_message():
+    json_string = request.get_data().decode("utf-8")
+    update = telebot.types.Update.de_json(json_string)
+    bot.process_new_updates([update])
+    return "!", 200
+
 @bot.message_handler(content_types=['text'])
 
 def start(message):
@@ -91,15 +100,6 @@ def start(message):
     else:
         bot.send_message(message.from_user.id,
                          'Привет! Напиши /start для начала')
-
-@server.route(f'/{BOT_TOKEN}', methods=['POST'])
-
-def redirect_message():
-    json_string = request.get_data().decode("utf-8")
-    update = telebot.types.Update.de_json(json_string)
-    bot.process_new_updates([update])
-    return "!", 200
-
 
 def get_result_func(message):
     global name_subject
