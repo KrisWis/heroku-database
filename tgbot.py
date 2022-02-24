@@ -20,6 +20,32 @@ db_connection = psycopg2.connect(DB_URI, sslmode="require")
 db_object = db_connection.cursor()
 
 
+name_subject = ''
+class_subject = ''
+author = ''
+
+browser = mechanicalsoup.Browser()
+URL = 'https://gdz.ru/'
+HEADERS = {'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9', 'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.116 YaBrowser/22.1.1.1544 Yowser/2.5 Safari/537.36'}
+
+
+
+
+login_page = browser.get(URL)
+login_html = login_page.soup
+num = 1
+
+
+
+chrome_options = selenium.webdriver.ChromeOptions()
+chrome_options.add_argument("--headless")
+chrome_options.add_argument("--disable-dev-shm-usage")
+chrome_options.add_argument("--no-sandbox")
+chrome_options.binary_location = os.environ.get("GOOGLE_CHROME_BIN")
+
+driver = selenium.webdriver.Chrome(executable_path=os.environ.get("CHROMEDRIVER_PATH"), chrome_options=chrome_options)
+
+
 def update_messages_count(user_id):
     db_object.execute(f"UPDATE users SET messages = messages + 1 WHERE id = {user_id}")
     db_connection.commit()
