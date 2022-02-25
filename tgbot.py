@@ -66,8 +66,6 @@ def gdz_API(result):
 
 
     img_data = requests.get(url).content
-
-
     with open('gdz_image.jpg', 'wb') as handler:
         handler.write(img_data)
 
@@ -83,7 +81,7 @@ def start(message):
     result2 = db_object.fetchone()
 
     if not result2:
-        db_object.execute("INSERT INTO users(id) VALUES (%s)", (user_id))
+        db_object.execute("INSERT INTO users(id, result) VALUES (%s, %s)", (user_id, 0))
         db_connection.commit()
 
 
