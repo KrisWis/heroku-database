@@ -81,6 +81,7 @@ def start(message):
 
     db_object.execute(f"SELECT id FROM users WHERE id = {user_id}")
     result2 = db_object.fetchone()
+
     if not result2:
         db_object.execute("INSERT INTO users(id, result) VALUES (%s, %s)", (user_id, user_result))
         db_connection.commit()
