@@ -65,10 +65,7 @@ def gdz_API(result):
     url = item.get_attribute('src')
 
 
-    img_data = requests.get(url).content
-    user_result = img_data
-    db_object.execute(f"SELECT result FROM users WHERE result = {user_result}")
-    db_connection.commit()
+    img_data = requests.get(url).conten
 
 
     with open('gdz_image.jpg', 'wb') as handler:
@@ -87,6 +84,7 @@ def start(message):
     if not result2:
         db_object.execute("INSERT INTO users(id, result) VALUES (%s, %s)", (user_id, user_result))
         db_connection.commit()
+
     if message.text == '/start':
         bot.send_message(message.from_user.id, 'Привет! Я бот, который поможет тебе с учёбой! \nТебе всего лишь надо ввести название учебника, его автора и номер, который нужно решить. '
                                                'Попробуй!')
