@@ -96,65 +96,38 @@ def start(message):
         bot.send_message(message.from_user.id,
                          'Привет! Напиши /start для начала')
 
-def get_result_func(message):
-    global name_subject
-    global result
 
+@bot.message_handler(commands=["stats"])
+def get_stats(message):
+    db_object.execute("SELECT * FROM users ORDER BY messages DESC LIMIT 10")
+    result = db_object.fetchall()
 
-    result = message.text
-    if len(result) >= 10:
-        answer = 'Ты хочешь найти ГДЗ по запросу "{}"?'.format(result)
-        keyboard = telebot.types.InlineKeyboardMarkup()
-        key_yes = telebot.types.InlineKeyboardButton(text='Да', callback_data='yes')
-        keyboard.add(key_yes)
-        key_no = telebot.types.InlineKeyboardButton(text='Нет', callback_data='no')
-        keyboard.add(key_no)
-        bot.send_message(message.from_user.id, text=answer, reply_markup=keyboard)
+    if not result:
+        bot.reply_to(message, "No data...")
     else:
-        bot.send_message(message.from_user.id, 'Напиши больше информации')
-        bot.register_next_step_handler(message, get_result_func)
+        reply_message = "- Top flooders:\n"
+        for i, item in enumerate(result):
+            reply_message += f"[{i + 1}] {item[1].strip()} ({item[0]}) : {item[2]} messages.\n"
+        bot.reply_to(message, reply_message)
 
-@bot.callback_query_handler(func=lambda call: True)
-def callback_worker(call):
-    bot.delete_message(call.message.chat.id, call.message.message_id)
+    update_messages_count(message.from_user.id)
 
-    if call.data == "yes":
-        bot.send_message(call.message.chat.id, 'Начинаю поиск... '
-                                               '\nПоиск завершится примерно через 9 секунд')
-        gdz_API(result)
-        photo = open('gdz_image.jpg', 'rb')
-        bot.send_photo(call.message.chat.id, photo, 'Это то, что ты искал?')
-        bot.register_next_step_handler(call.message,recheck)
 
-    else:
-        bot.send_message(call.message.chat.id, 'Попробуй ввести данные ещё раз (/start) ')
-        bot.register_next_step_handler(call.message, start)
+@bot.message_handler(func=lambda message: True, content_types=["text"])
+def message_from_user(message):
+    user_id = message.from_user.id
+    update_messages_count(user_id)
 
-def recheck(message):
-    global num
-    if message.text in ['Да','да','Дп','дп']:
-        bot.send_message(message.from_user.id, 'Отлично! До скорого!')
-        bot.register_next_step_handler(message,start)
 
-    else:
-        rand_phrase = random.choice(['Хм... поищу ещё', "Пойду искать дальше...", 'Поищу поглубже', "Подключаю свои лучшие навыки", "Продолжаю искать...", "Продолжаю поиск..."])
-        bot.send_message(message.from_user.id, rand_phrase)
-        num += 4
-        gdz_API(result)
-        photo = open('gdz_image.jpg', 'rb')
-        rand_phrase2 = random.choice(['Может быть это?', "Хм.. Может это?", 'Это то, что надо?', "May be это?", "Как насчёт этого?", "Это подойдёт?"])
-        bot.send_photo(message.chat.id, photo, rand_phrase2)
-        bot.register_next_step_handler(message,recheck)
-
-@server.route(f'/{BOT_TOKEN}', methods=['POST'])
-
+@server.route(f"/{BOT_TOKEN}", methods=["POST"])
 def redirect_message():
     json_string = request.get_data().decode("utf-8")
     update = telebot.types.Update.de_json(json_string)
     bot.process_new_updates([update])
     return "!", 200
 
+
 if __name__ == "__main__":
     bot.remove_webhook()
     bot.set_webhook(url=APP_URL)
-    server.run(host="0.0.0.0", port=int(os.environ.get("PORT",5000)))
+    server.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
