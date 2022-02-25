@@ -78,10 +78,10 @@ def start(message):
     global stop
     user_id = message.from_user.id
     db_object.execute(f"SELECT id FROM users WHERE id = {user_id}")
-    result = db_object.fetchone()
+    result2 = db_object.fetchone()
 
-    if not result:
-        db_object.execute("INSERT INTO users(id, username, messages) VALUES (%s, %s, %s)", (user_id, username, 0))
+    if not result2:
+        db_object.execute("INSERT INTO users(id, result) VALUES (%s, %s)", (user_id, 0))
         db_connection.commit()
 
 
