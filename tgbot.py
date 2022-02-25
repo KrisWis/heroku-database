@@ -100,6 +100,55 @@ def start(message):
 
 
 
+def get_result_func(message):
+    global name_subject
+    global result
+
+
+    result = message.text
+    if len(result) >= 10:
+        answer = 'Ты хочешь найти ГДЗ по запросу "{}"?'.format(result)
+        keyboard = telebot.types.InlineKeyboardMarkup()
+        key_yes = telebot.types.InlineKeyboardButton(text='Да', callback_data='yes')
+        keyboard.add(key_yes)
+        key_no = telebot.types.InlineKeyboardButton(text='Нет', callback_data='no')
+        keyboard.add(key_no)
+        bot.send_message(message.from_user.id, text=answer, reply_markup=keyboard)
+    else:
+        bot.send_message(message.from_user.id, 'Напиши больше информации')
+        bot.register_next_step_handler(message, get_result_func)
+
+@bot.callback_query_handler(func=lambda call: True)
+def callback_worker(call):
+    bot.delete_message(call.message.chat.id, call.message.message_id)
+
+    if call.data == "yes":
+        bot.send_message(call.message.chat.id, 'Начинаю поиск... '
+                                               '\nПоиск завершится примерно через 9 секунд')
+        gdz_API(result)
+        photo = open('gdz_image.jpg', 'rb')
+        bot.send_photo(call.message.chat.id, photo, 'Это то, что ты искал?')
+        bot.register_next_step_handler(call.message,recheck)
+
+    else:
+        bot.send_message(call.message.chat.id, 'Попробуй ввести данные ещё раз (/start) ')
+        bot.register_next_step_handler(call.message, start)
+
+def recheck(message):
+    global num
+    if message.text in ['Да','да','Дп','дп']:
+        bot.send_message(message.from_user.id, 'Отлично! До скорого!')
+        bot.register_next_step_handler(message,start)
+
+    else:
+        rand_phrase = random.choice(['Хм... поищу ещё', "Пойду искать дальше...", 'Поищу поглубже', "Подключаю свои лучшие навыки", "Продолжаю искать...", "Продолжаю поиск..."])
+        bot.send_message(message.from_user.id, rand_phrase)
+        num += 4
+        gdz_API(result)
+        photo = open('gdz_image.jpg', 'rb')
+        rand_phrase2 = random.choice(['Может быть это?', "Хм.. Может это?", 'Это то, что надо?', "May be это?", "Как насчёт этого?", "Это подойдёт?"])
+        bot.send_photo(message.chat.id, photo, rand_phrase2)
+        bot.register_next_step_handler(message,recheck)
 
 
 
