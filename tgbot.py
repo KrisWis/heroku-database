@@ -69,9 +69,7 @@ def gdz_API(result):
     with open('gdz_image.jpg', 'wb') as handler:
         handler.write(img_data)
 
-def update_messages_count(user_id):
-    db_object.execute(f"UPDATE users SET messages = messages + 1 WHERE id = {user_id}")
-    db_connection.commit()
+
 
 
 @bot.message_handler(commands=["start"])
@@ -99,7 +97,7 @@ def start(message):
         bot.send_message(message.from_user.id,
                          'Привет! Напиши /start для начала')
 
-    update_messages_count(user_id)
+
 
 
 @bot.message_handler(commands=["stats"])
