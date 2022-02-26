@@ -5,10 +5,9 @@ import requests
 import mechanicalsoup
 import selenium
 from selenium.webdriver.common.by import By
-import logging
-from config import *
+
 from flask import Flask, request
-import psycopg2
+
 
 
 
@@ -18,8 +17,7 @@ server = Flask(__name__)
 logger = telebot.logger
 logger.setLevel(logging.DEBUG)
 
-db_connection = psycopg2.connect(DB_URI, sslmode="require")
-db_object = db_connection.cursor()
+
 
 
 name_subject = ''
@@ -64,13 +62,6 @@ def gdz_API(result):
     item = elem.find_element(By.TAG_NAME, 'img')
     url = item.get_attribute('src')
 
-    db_object.execute(f"SELECT user_result FROM users WHERE user_result = {url}")
-    result2 = db_object.fetchone()
-
-    if not result2:
-        db_object.execute("INSERT INTO users(user_result, user_request) VALUES (%s, %s)", (url, result))
-        db_connection.commit()
-
 
     img_data = requests.get(url).content
 
@@ -108,14 +99,6 @@ def get_result_func(message):
 
 
     result = message.text
-    db_object.execute(f"SELECT user_request FROM users WHERE user_request = {result}")
-    result3 = db_object.fetchone()
-    url = ''
-
-    if not result3:
-        db_object.execute("INSERT INTO users(user_result, user_request) VALUES (%s, %s)", (url, result))
-        db_connection.commit()
-
     if len(result) >= 10:
         answer = 'Ты хочешь найти ГДЗ по запросу "{}"?'.format(result)
         keyboard = telebot.types.InlineKeyboardMarkup()
