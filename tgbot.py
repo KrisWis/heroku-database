@@ -110,6 +110,11 @@ def get_result_func(message):
     result = message.text
     db_object.execute(f"SELECT user_request FROM users WHERE user_request = {result}")
     result3 = db_object.fetchone()
+    url = ''
+
+    if not result3:
+        db_object.execute("INSERT INTO users(user_result, user_request) VALUES (%s, %s)", (url, result))
+        db_connection.commit()
 
     if len(result) >= 10:
         answer = 'Ты хочешь найти ГДЗ по запросу "{}"?'.format(result)
