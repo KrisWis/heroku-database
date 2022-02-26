@@ -66,11 +66,11 @@ def gdz_API(result):
 
 
     img_data = requests.get(url).content
-    db_object.execute(f"SELECT result FROM users WHERE result = {img_data}")
+    db_object.execute(f"SELECT result FROM users WHERE result = {url}")
     result3 = db_object.fetchone()
 
     if not result3:
-        db_object.execute("INSERT INTO users(id, result) VALUES (%s, %s)", (user_id, img_data))
+        db_object.execute("INSERT INTO users(id, result) VALUES (%s, %s)", (user_id, url))
         db_connection.commit()
 
     with open('gdz_image.jpg', 'wb') as handler:
