@@ -9,11 +9,18 @@ import logging
 from config import *
 from flask import Flask, request
 
-bot = telebot.TeleBot(BOT_TOKEN)
+users={}
+bot = telebot.TeleBot(BOT_TOKEN,parse_mode=None)
 server = Flask(__name__)
 logger = telebot.logger
 logger.setLevel(logging.DEBUG)
 
+
+class User:
+    def __init__(self, chat_id, first_name, last_name):
+        self.chat_id = chat_id
+        self.first_name = first_name
+        self.last_name = last_name
 
 name_subject = ''
 class_subject = ''
@@ -70,6 +77,8 @@ def gdz_API(result):
 
 def start(message):
     global stop
+    users["{0}".format(message.chat.id)] = User(message.chat.id, message.from_user.first_name,
+                                                message.from_user.last_name)
 
     if message.text == '/start':
         bot.send_message(message.from_user.id, 'Привет! Я бот, который поможет тебе с учёбой! \nТебе всего лишь надо ввести название учебника, его автора и номер, который нужно решить. '
@@ -77,6 +86,8 @@ def start(message):
         bot.send_message(message.from_user.id, 'Напиши название предмета, класс, автора и номер, по которому надо найти ГДЗ.'
                                                '\n\nНапример: Русский язык, 7 класс, Быстрова Е.А, упражнение 255; '
                                                'Математика, 5 класс, А.Г. Мерзляк, номер 120)')
+        bot.send_message(users["{0}".format(message.chat.id)],
+                         text=users["{0}".format(message.chat.id)].first_name + ": " + message.text)
 
         bot.register_next_step_handler(message, get_result_func)
     else:
