@@ -12,9 +12,7 @@ from selenium.webdriver.common.by import By
 
 
 bot = telebot.TeleBot('5031716672:AAGsyJ0wMMS3uq662Yxj3pY6Vg8boJ8oHfw')
-server = Flask(__name__)
-logger = telebot.logger
-logger.setLevel(logging.DEBUG)
+
 
 
 
