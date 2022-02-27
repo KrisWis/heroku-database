@@ -5,13 +5,13 @@ import requests
 import mechanicalsoup
 import selenium
 from selenium.webdriver.common.by import By
-from flask import Flask, request
 
 
 
 
-users = {}
-bot = telebot.TeleBot('5031716672:AAGsyJ0wMMS3uq662Yxj3pY6Vg8boJ8oHfw', parse_mode=True)
+
+
+bot = telebot.TeleBot('5031716672:AAGsyJ0wMMS3uq662Yxj3pY6Vg8boJ8oHfw')
 server = Flask(__name__)
 logger = telebot.logger
 logger.setLevel(logging.DEBUG)
@@ -45,13 +45,6 @@ chrome_options.binary_location = os.environ.get("GOOGLE_CHROME_BIN")
 driver = selenium.webdriver.Chrome(executable_path=os.environ.get("CHROMEDRIVER_PATH"), chrome_options=chrome_options)
 
 
-class User:
-    def __init__(self, chat_id, first_name, last_name):
-        self.chat_id = chat_id
-        self.first_name = first_name
-        self.last_name = last_name
-
-
 def gdz_API(result):
 
     form = login_html.select('form')[0]
@@ -81,8 +74,6 @@ def gdz_API(result):
 
 def start(message):
     global stop
-    users["{0}".format(message.chat.id)] = User(message.chat.id, message.from_user.first_name,
-                                                message.from_user.last_name)
 
     if message.text == '/start':
         bot.send_message(message.from_user.id, 'Привет! Я бот, который поможет тебе с учёбой! \nТебе всего лишь надо ввести название учебника, его автора и номер, который нужно решить. '
@@ -90,9 +81,6 @@ def start(message):
         bot.send_message(message.from_user.id, 'Напиши название предмета, класс, автора и номер, по которому надо найти ГДЗ.'
                                                '\n\nНапример: Русский язык, 7 класс, Быстрова Е.А, упражнение 255; '
                                                'Математика, 5 класс, А.Г. Мерзляк, номер 120)')
-
-        bot.send_message(users["{0}".format(message.chat.id)],
-                         text=users["{0}".format(message.chat.id)].first_name + ": " + message.text)
 
         bot.register_next_step_handler(message, get_result_func)
     else:
@@ -154,15 +142,4 @@ def recheck(message):
         bot.send_photo(message.chat.id, photo, rand_phrase2)
         bot.register_next_step_handler(message,recheck)
 
-@server.route(f"/{BOT_TOKEN}", methods=["POST"])
-def redirect_message():
-    json_string = request.get_data().decode("utf-8")
-    update = telebot.types.Update.de_json(json_string)
-    bot.process_new_updates([update])
-    return "!", 200
-
-
-if __name__ == "__main__":
-    bot.remove_webhook()
-    bot.set_webhook(url=APP_URL)
-    server.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
+bot.polling(none_stop=True, interval=0)
