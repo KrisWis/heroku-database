@@ -9,7 +9,6 @@ import logging
 from config import *
 from flask import Flask, request
 
-users = {}
 bot = telebot.TeleBot(BOT_TOKEN)
 server = Flask(__name__)
 logger = telebot.logger
@@ -73,17 +72,9 @@ def gdz_API(result):
 def start(message):
     global stop
 
-    class User:
-        def __init__(self, chat_id, first_name, last_name):
-            self.chat_id = chat_id
-            self.first_name = first_name
-            self.last_name = last_name
-            users["{0}".format(message.chat.id)] = User(message.chat.id, message.from_user.first_name,
-                                                message.from_user.last_name)
 
     if message.text == '/start':
-        bot.send_message(users["{0}".format(message.chat.id)],
-                         text=users["{0}".format(message.chat.id)].first_name + ": " + message.text)
+
 
         bot.send_message(message.from_user.id, 'Привет! Я бот, который поможет тебе с учёбой! \nТебе всего лишь надо ввести название учебника, его автора и номер, который нужно решить. '
                                                'Попробуй!')
