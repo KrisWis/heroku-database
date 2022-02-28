@@ -86,10 +86,11 @@ def start(message):
         bot.send_message(message.from_user.id, 'Напиши название предмета, класс, автора и номер, по которому надо найти ГДЗ.'
                                                '\n\nНапример: Русский язык, 7 класс, Быстрова Е.А, упражнение 255; '
                                                'Математика, 5 класс, А.Г. Мерзляк, номер 120)')
+
+        bot.register_next_step_handler(message, get_result_func)
         bot.send_message(users["{0}".format(message.chat.id)],
                          text=users["{0}".format(message.chat.id)].first_name + ": " + message.text)
 
-        bot.register_next_step_handler(message, get_result_func)
     else:
         bot.send_message(message.from_user.id,
                          'Привет! Напиши /start для начала')
