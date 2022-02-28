@@ -8,9 +8,12 @@ from selenium.webdriver.common.by import By
 import logging
 from config import *
 from flask import Flask, request
-import psycorg2
+import psycopg2
 
 bot = telebot.TeleBot(BOT_TOKEN)
+server = Flask(__name__)
+logger = telebot.logger
+logger.setLevel(logging.DEBUG)
 
 
 name_subject = ''
