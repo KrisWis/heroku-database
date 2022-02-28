@@ -73,7 +73,6 @@ def gdz_API(result):
 
 def start(message):
     global stop
-    user_id = message.from_user.id
 
 
     if message.text == '/start':
@@ -103,6 +102,8 @@ def get_result_func(message):
 
 
     result = message.text
+
+
     if len(result) >= 10:
         answer = 'Ты хочешь найти ГДЗ по запросу "{}"?'.format(result)
         keyboard = telebot.types.InlineKeyboardMarkup()
