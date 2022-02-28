@@ -8,13 +8,15 @@ from selenium.webdriver.common.by import By
 import logging
 from config import *
 from flask import Flask, request
+import psycorg2
 
 bot = telebot.TeleBot(BOT_TOKEN)
 server = Flask(__name__)
 logger = telebot.logger
 logger.setLevel(logging.DEBUG)
 
-
+db_connection = psycopg2.connect(DB_URI, sslmode="require")
+db_object = db_connection.cursor()
 
 name_subject = ''
 class_subject = ''
@@ -71,7 +73,13 @@ def gdz_API(result):
 
 def start(message):
     global stop
+    user_id = message.from_user.id
+    db_object.execute(f"SELECT id FROM users WHERE id = {user_id}")
+    result = db_object.fetchone()
 
+    if not result:
+        db_object.execute("INSERT INTO users(id, username, messages) VALUES (%s, %s, %s)", (user_id, username, 0))
+        db_connection.commit()
 
     if message.text == '/start':
 
@@ -144,15 +152,15 @@ def recheck(message):
         bot.send_photo(message.chat.id, photo, rand_phrase2)
         bot.register_next_step_handler(message,recheck)
 
-@server.route(f'/{BOT_TOKEN}', methods=['POST'])
-
+@server.route(f"/{BOT_TOKEN}", methods=["POST"])
 def redirect_message():
     json_string = request.get_data().decode("utf-8")
     update = telebot.types.Update.de_json(json_string)
     bot.process_new_updates([update])
     return "!", 200
 
+
 if __name__ == "__main__":
     bot.remove_webhook()
     bot.set_webhook(url=APP_URL)
-    server.run(host="0.0.0.0", port=int(os.environ.get("PORT",5000)))
+    server.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
