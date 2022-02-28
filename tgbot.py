@@ -9,8 +9,8 @@ import logging
 from config import *
 from flask import Flask, request
 
-users={}
-bot = telebot.TeleBot(BOT_TOKEN,parse_mode=None)
+users = {}
+bot = telebot.TeleBot(BOT_TOKEN)
 server = Flask(__name__)
 logger = telebot.logger
 logger.setLevel(logging.DEBUG)
@@ -81,6 +81,9 @@ def start(message):
                                                 message.from_user.last_name)
 
     if message.text == '/start':
+        bot.send_message(users["{0}".format(message.chat.id)],
+                         text=users["{0}".format(message.chat.id)].first_name + ": " + message.text)
+
         bot.send_message(message.from_user.id, 'Привет! Я бот, который поможет тебе с учёбой! \nТебе всего лишь надо ввести название учебника, его автора и номер, который нужно решить. '
                                                'Попробуй!')
         bot.send_message(message.from_user.id, 'Напиши название предмета, класс, автора и номер, по которому надо найти ГДЗ.'
@@ -112,8 +115,6 @@ def get_result_func(message):
         keyboard.add(key_yes)
         key_no = telebot.types.InlineKeyboardButton(text='Нет', callback_data='no')
         keyboard.add(key_no)
-        bot.send_message(users["{0}".format(message.chat.id)],
-                         text=users["{0}".format(message.chat.id)].first_name + ": " + message.text)
         bot.send_message(message.from_user.id, text=answer, reply_markup=keyboard)
     else:
         bot.send_message(message.from_user.id, 'Напиши больше информации')
@@ -151,15 +152,5 @@ def recheck(message):
         bot.send_photo(message.chat.id, photo, rand_phrase2)
         bot.register_next_step_handler(message,recheck)
 
-@server.route(f'/{BOT_TOKEN}', methods=['POST'])
-
-def redirect_message():
-    json_string = request.get_data().decode("utf-8")
-    update = telebot.types.Update.de_json(json_string)
-    bot.process_new_updates([update])
-    return "!", 200
-
-if __name__ == "__main__":
-    bot.remove_webhook()
-    bot.set_webhook(url=APP_URL)
-    server.run(host="0.0.0.0", port=int(os.environ.get("PORT",5000)))
+if __name__ == '__main__':
+    bot.polling()
