@@ -102,6 +102,7 @@ def get_result_func(message):
 
 
     result = message.text
+
     db_object.execute(f"SELECT user_request FROM users WHERE user_request = {result}")
     result2 = db_object.fetchone()
 
