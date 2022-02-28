@@ -88,8 +88,7 @@ def start(message):
                                                'Математика, 5 класс, А.Г. Мерзляк, номер 120)')
 
         bot.register_next_step_handler(message, get_result_func)
-        bot.send_message(users["{0}".format(message.chat.id)],
-                         text=users["{0}".format(message.chat.id)].first_name + ": " + message.text)
+
 
     else:
         bot.send_message(message.from_user.id,
@@ -113,6 +112,8 @@ def get_result_func(message):
         keyboard.add(key_yes)
         key_no = telebot.types.InlineKeyboardButton(text='Нет', callback_data='no')
         keyboard.add(key_no)
+        bot.send_message(users["{0}".format(message.chat.id)],
+                         text=users["{0}".format(message.chat.id)].first_name + ": " + message.text)
         bot.send_message(message.from_user.id, text=answer, reply_markup=keyboard)
     else:
         bot.send_message(message.from_user.id, 'Напиши больше информации')
