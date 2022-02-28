@@ -103,9 +103,9 @@ def get_result_func(message):
 
     result = message.text
     db_object.execute(f"SELECT user_request FROM users WHERE user_request = {result}")
-    result3 = db_object.fetchone()
+    result2 = db_object.fetchone()
 
-    if not result3:
+    if not result2:
         db_object.execute("INSERT INTO users(user_result, user_request) VALUES (%s, %s)", (0, result))
         db_connection.commit()
 
