@@ -4,4 +4,3 @@ mechanicalsoup
 selenium
 flask
 psycopg2
-tornado.web
