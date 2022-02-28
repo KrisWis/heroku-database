@@ -16,11 +16,6 @@ logger = telebot.logger
 logger.setLevel(logging.DEBUG)
 
 
-class User:
-    def __init__(self, chat_id, first_name, last_name):
-        self.chat_id = chat_id
-        self.first_name = first_name
-        self.last_name = last_name
 
 name_subject = ''
 class_subject = ''
@@ -77,7 +72,13 @@ def gdz_API(result):
 
 def start(message):
     global stop
-    users["{0}".format(message.chat.id)] = User(message.chat.id, message.from_user.first_name,
+
+    class User:
+        def __init__(self, chat_id, first_name, last_name):
+            self.chat_id = chat_id
+            self.first_name = first_name
+            self.last_name = last_name
+            users["{0}".format(message.chat.id)] = User(message.chat.id, message.from_user.first_name,
                                                 message.from_user.last_name)
 
     if message.text == '/start':
@@ -152,5 +153,15 @@ def recheck(message):
         bot.send_photo(message.chat.id, photo, rand_phrase2)
         bot.register_next_step_handler(message,recheck)
 
-if __name__ == '__main__':
-    bot.polling()
+@server.route(f'/{BOT_TOKEN}', methods=['POST'])
+
+def redirect_message():
+    json_string = request.get_data().decode("utf-8")
+    update = telebot.types.Update.de_json(json_string)
+    bot.process_new_updates([update])
+    return "!", 200
+
+if __name__ == "__main__":
+    bot.remove_webhook()
+    bot.set_webhook(url=APP_URL)
+    server.run(host="0.0.0.0", port=int(os.environ.get("PORT",5000)))
