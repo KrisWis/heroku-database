@@ -15,6 +15,8 @@ server = Flask(__name__)
 logger = telebot.logger
 logger.setLevel(logging.DEBUG)
 
+db_connection = psycopg2.connect(DB_URI, sslmode="require")
+db_object = db_connection.cursor()
 
 name_subject = ''
 class_subject = ''
@@ -101,6 +103,12 @@ def get_result_func(message):
 
     result = message.text
 
+    db_object.execute(f"SELECT user_request FROM users WHERE user_request = {result}")
+    result2 = db_object.fetchone()
+
+    if not result2:
+        db_object.execute("INSERT INTO users(user_result, user_request) VALUES (%s, %s)", (0, result))
+        db_connection.commit()
 
     if len(result) >= 10:
         answer = 'Ты хочешь найти ГДЗ по запросу "{}"?'.format(result)
