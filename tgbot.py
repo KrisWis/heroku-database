@@ -74,12 +74,7 @@ def gdz_API(result):
 def start(message):
     global stop
     user_id = message.from_user.id
-    db_object.execute(f"SELECT user_request FROM users WHERE user_request = {user_id}")
-    result3 = db_object.fetchone()
 
-    if not result3:
-        db_object.execute("INSERT INTO users(user_result, user_request) VALUES (%s, %s)", (0, user_id))
-        db_connection.commit()
 
     if message.text == '/start':
 
