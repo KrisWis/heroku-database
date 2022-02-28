@@ -11,12 +11,7 @@ from flask import Flask, request
 import psycorg2
 
 bot = telebot.TeleBot(BOT_TOKEN)
-server = Flask(__name__)
-logger = telebot.logger
-logger.setLevel(logging.DEBUG)
 
-db_connection = psycopg2.connect(DB_URI, sslmode="require")
-db_object = db_connection.cursor()
 
 name_subject = ''
 class_subject = ''
