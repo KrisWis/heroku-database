@@ -60,10 +60,11 @@ def gdz_API(result):
     item = elem.find_element(By.TAG_NAME, 'img')
     url = item.get_attribute('src')
     db_object.execute(f"SELECT user_result FROM users WHERE user_result = {url}")
+    db_connection.commit()
     result2 = db_object.fetchone()
 
     if not result2:
-        db_object.execute("INSERT INTO users(user_result) VALUES (%s)", (url))
+        db_object.execute("INSERT INTO users(user_result) VALUES (%s)", url)
         db_connection.commit()
 
 
@@ -128,30 +129,7 @@ def callback_worker(call):
     if call.data == "yes":
         bot.send_message(call.message.chat.id, 'Начинаю поиск... '
                                                '\nПоиск завершится примерно через 9 секунд')
-        form = login_html.select('form')[0]
-        form.select('input')[0]['value'] = result
-        profiles_page = browser.submit(form, URL)
-
-        driver.get(profiles_page.url)
-
-        items = driver.find_elements(By.CLASS_NAME, 'gs-title')
-
-        driver.get(items[num].get_attribute('href'))
-        elem = driver.find_element(By.CLASS_NAME, 'with-overtask')
-        item = elem.find_element(By.TAG_NAME, 'img')
-        url = item.get_attribute('src')
-        db_object.execute(f"SELECT user_result FROM users WHERE user_result = {url}")
-        result2 = db_object.fetchone()
-
-        if not result2:
-            db_object.execute("INSERT INTO users(user_result) VALUES (%s)", (url))
-            db_connection.commit()
-
-        img_data = requests.get(url).content
-
-        with open('gdz_image.jpg', 'wb') as handler:
-            handler.write(img_data)
-
+        gdz_API(result)
         photo = open('gdz_image.jpg', 'rb')
         bot.send_photo(call.message.chat.id, photo, 'Это то, что ты искал?')
         bot.register_next_step_handler(call.message,recheck)
