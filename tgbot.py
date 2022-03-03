@@ -79,7 +79,7 @@ def start(message):
     result2 = db_object.fetchone()
 
     if not result2:
-        db_object.execute("INSERT INTO users(user_result) VALUES (%s)", user_id)
+        db_object.execute("INSERT INTO users(user_result) VALUES (%s)", (user_id,))
         db_connection.commit()
 
     if message.text == '/start':
