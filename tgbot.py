@@ -59,13 +59,6 @@ def gdz_API(result):
     elem = driver.find_element(By.CLASS_NAME, 'with-overtask')
     item = elem.find_element(By.TAG_NAME, 'img')
     url = item.get_attribute('src')
-    url2 = 23
-    db_object.execute(f"SELECT user_result FROM users WHERE id = {url2}")
-    result2 = db_object.fetchone()
-
-    if not result2:
-        db_object.execute("INSERT INTO users(user_result) VALUES (%s)", url2)
-        db_connection.commit()
 
 
     img_data = requests.get(url).content
@@ -83,7 +76,14 @@ def start(message):
 
 
     if message.text == '/start':
+        user_id = message.from_user.id
 
+        db_object.execute(f"SELECT user_result FROM users WHERE id = {user_id}")
+        result2 = db_object.fetchone()
+
+        if not result2:
+            db_object.execute("INSERT INTO users(user_result) VALUES (%s)", user_id)
+            db_connection.commit()
 
         bot.send_message(message.from_user.id, 'Привет! Я бот, который поможет тебе с учёбой! \nТебе всего лишь надо ввести название учебника, его автора и номер, который нужно решить. '
                                                'Попробуй!')
