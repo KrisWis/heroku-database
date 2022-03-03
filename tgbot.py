@@ -76,14 +76,7 @@ def start(message):
 
 
     if message.text == '/start':
-        user_id = message.from_user.id
 
-        db_object.execute(f"SELECT user_result FROM users WHERE id = {user_id}")
-        result2 = db_object.fetchone()
-
-        if not result2:
-            db_object.execute("INSERT INTO users(user_result) VALUES (%s)", user_id)
-            db_connection.commit()
 
         bot.send_message(message.from_user.id, 'Привет! Я бот, который поможет тебе с учёбой! \nТебе всего лишь надо ввести название учебника, его автора и номер, который нужно решить. '
                                                'Попробуй!')
