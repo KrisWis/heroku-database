@@ -59,6 +59,7 @@ def gdz_API(result):
     elem = driver.find_element(By.CLASS_NAME, 'with-overtask')
     item = elem.find_element(By.TAG_NAME, 'img')
     url = item.get_attribute('src')
+    url = str(url)
     db_object.execute(f"SELECT user_result FROM users WHERE user_result = {url}")
     result3 = db_object.fetchone()
 
