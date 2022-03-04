@@ -61,7 +61,7 @@ def gdz_API(result):
     url = item.get_attribute('src')
 
     img_data = requests.get(url).content
-
+    img_data = "'" + img_data + "'"
     db_object.execute(f"SELECT user_result FROM users WHERE user_result = {img_data}")
     result2 = db_object.fetchone()
 
