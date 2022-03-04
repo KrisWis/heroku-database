@@ -66,7 +66,7 @@ def gdz_API(result, message):
     img_data = requests.get(url).content
     users.update({message.chat.id: img_data})
 
-    with open(users["'" + message.chat.id + "'"], 'wb') as handler:
+    with open("'" + users[message.chat.id] + "png.'", 'wb') as handler:
         handler.write(users[message.chat.id])
 
 
@@ -125,7 +125,7 @@ def callback_worker(call):
         bot.send_message(call.message.chat.id, 'Начинаю поиск... '
                                                '\nПоиск завершится примерно через 9 секунд')
         gdz_API(result, call.message)
-        photo = open(users["'" + message.chat.id + "'"], 'rb')
+        photo = open("'" + users[message.chat.id] + "png.'", 'rb')
         bot.send_photo(call.message.chat.id, photo, 'Это то, что ты искал?')
         bot.register_next_step_handler(call.message,recheck)
 
@@ -144,7 +144,7 @@ def recheck(message):
         bot.send_message(message.from_user.id, rand_phrase)
         num += 4
         gdz_API(result, message)
-        photo = open(users["'" + message.chat.id + "'"], 'rb')
+        photo = open("'" + users[message.chat.id] + "png.'", 'rb')
         rand_phrase2 = random.choice(['Может быть это?', "Хм.. Может это?", 'Это то, что надо?', "May be это?", "Как насчёт этого?", "Это подойдёт?"])
         bot.send_photo(message.chat.id, photo, rand_phrase2)
         bot.register_next_step_handler(message,recheck)
