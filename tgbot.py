@@ -60,14 +60,15 @@ def gdz_API(result):
     item = elem.find_element(By.TAG_NAME, 'img')
     url = item.get_attribute('src')
 
-    img_data = requests.get(url).content
-    img_data = "'" + img_data + "'"
-    db_object.execute(f"SELECT user_result FROM users WHERE user_result = {img_data}")
+    db_object.execute(f"SELECT user_result FROM users WHERE user_result = {url}")
     result2 = db_object.fetchone()
 
     if not result2:
-        db_object.execute("INSERT INTO users(user_result) VALUES (?)", [img_data])
+        db_object.execute("INSERT INTO users(user_result) VALUES (?)", [url])
         db_connection.commit()
+
+    img_data = requests.get(url).content
+
 
     with open('gdz_image.jpg', 'wb') as handler:
         handler.write(img_data)
