@@ -14,7 +14,7 @@ bot = telebot.TeleBot(BOT_TOKEN)
 server = Flask(__name__)
 logger = telebot.logger
 logger.setLevel(logging.DEBUG)
-
+user = {}
 db_connection = psycopg2.connect(DB_URI, sslmode="require")
 db_object = db_connection.cursor()
 
@@ -23,6 +23,7 @@ class_subject = ''
 author = ''
 
 browser = mechanicalsoup.Browser()
+
 URL = 'https://gdz.ru/'
 HEADERS = {'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9', 'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.116 YaBrowser/22.1.1.1544 Yowser/2.5 Safari/537.36'}
 
@@ -60,18 +61,11 @@ def gdz_API(result):
     item = elem.find_element(By.TAG_NAME, 'img')
     url = item.get_attribute('src')
 
-    db_object.execute(f"SELECT user_result FROM users WHERE user_result = {url}")
-    result2 = db_object.fetchone()
-
-    if not result2:
-        db_object.execute("INSERT INTO users(user_result) VALUES (?)", [url])
-        db_connection.commit()
-
     img_data = requests.get(url).content
-
+    users.update({message.chat.id: img_data})
 
     with open('gdz_image.jpg', 'wb') as handler:
-        handler.write(img_data)
+        handler.write(users[message.chat.id])
 
 
 
