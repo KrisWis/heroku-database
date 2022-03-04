@@ -59,10 +59,11 @@ def gdz_API(result):
     elem = driver.find_element(By.CLASS_NAME, 'with-overtask')
     item = elem.find_element(By.TAG_NAME, 'img')
     url = item.get_attribute('src')
+    url = '""' + url + '""'
     db_object.execute(f"SELECT user_result FROM users WHERE user_result = {url}")
-    result3 = db_object.fetchone()
+    result2 = db_object.fetchone()
 
-    if not result3:
+    if not result2:
         db_object.execute("INSERT INTO users(user_result,published_on, active) VALUES (?,NOW(),True)", [url])
         db_connection.commit()
 
