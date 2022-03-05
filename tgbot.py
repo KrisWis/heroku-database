@@ -15,7 +15,6 @@ server = Flask(__name__)
 logger = telebot.logger
 logger.setLevel(logging.DEBUG)
 
-users = {}
 
 db_connection = psycopg2.connect(DB_URI, sslmode="require")
 db_object = db_connection.cursor()
@@ -47,7 +46,7 @@ chrome_options.binary_location = os.environ.get("GOOGLE_CHROME_BIN")
 driver = selenium.webdriver.Chrome(executable_path=os.environ.get("CHROMEDRIVER_PATH"), chrome_options=chrome_options)
 
 
-def gdz_API(result, message):
+def gdz_API(result):
     global stop
 
     if not stop:
@@ -68,10 +67,9 @@ def gdz_API(result, message):
         stop = False
 
         img_data = requests.get(url).content
-        users.update({message.chat.id: img_data})
 
-        with open("gdz_image{}.png".format(users[message.chat.id]), 'wb') as handler:
-            handler.write(users[message.chat.id])
+        with open("gdz_image.png", 'wb') as handler:
+            handler.write(img_data)
 
 
 
@@ -127,8 +125,9 @@ def callback_worker(call):
     if call.data == "yes":
         bot.send_message(call.message.chat.id, 'Начинаю поиск... '
                                                '\nПоиск завершится примерно через 9 секунд')
-        gdz_API(result, call.message)
-        photo = open("gdz_image{}.png".format(users[message.chat.id]), 'rb')
+
+        gdz_API(result)
+        photo = open("gdz_image.png", 'rb')
         bot.send_photo(call.message.chat.id, photo, 'Это то, что ты искал?')
         bot.register_next_step_handler(call.message,recheck)
 
@@ -146,8 +145,8 @@ def recheck(message):
         rand_phrase = random.choice(['Хм... поищу ещё', "Пойду искать дальше...", 'Поищу поглубже', "Подключаю свои лучшие навыки", "Продолжаю искать...", "Продолжаю поиск..."])
         bot.send_message(message.from_user.id, rand_phrase)
         num += 4
-        gdz_API(result, message)
-        photo = open("gdz_image{}.png".format(users[message.chat.id]), 'rb')
+        gdz_API(result)
+        photo = open("gdz_image.png", 'rb')
         rand_phrase2 = random.choice(['Может быть это?', "Хм.. Может это?", 'Это то, что надо?', "May be это?", "Как насчёт этого?", "Это подойдёт?"])
         bot.send_photo(message.chat.id, photo, rand_phrase2)
         bot.register_next_step_handler(message,recheck)
