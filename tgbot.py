@@ -35,7 +35,7 @@ HEADERS = {'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,imag
 login_page = browser.get(URL)
 login_html = login_page.soup
 num = 1
-
+stop = False
 
 
 chrome_options = selenium.webdriver.ChromeOptions()
@@ -48,26 +48,30 @@ driver = selenium.webdriver.Chrome(executable_path=os.environ.get("CHROMEDRIVER_
 
 
 def gdz_API(result, message):
+    global stop
 
-    form = login_html.select('form')[0]
-    form.select('input')[0]['value'] = result
-    profiles_page = browser.submit(form, URL)
+    if not stop:
+        stop = True
+        form = login_html.select('form')[0]
+        form.select('input')[0]['value'] = result
+        profiles_page = browser.submit(form, URL)
 
-    driver.get(profiles_page.url)
+        driver.get(profiles_page.url)
 
-    items = driver.find_elements(By.CLASS_NAME, 'gs-title')
+        items = driver.find_elements(By.CLASS_NAME, 'gs-title')
 
 
-    driver.get(items[num].get_attribute('href'))
-    elem = driver.find_element(By.CLASS_NAME, 'with-overtask')
-    item = elem.find_element(By.TAG_NAME, 'img')
-    url = item.get_attribute('src')
+        driver.get(items[num].get_attribute('href'))
+        elem = driver.find_element(By.CLASS_NAME, 'with-overtask')
+        item = elem.find_element(By.TAG_NAME, 'img')
+        url = item.get_attribute('src')
+        stop = False
 
-    img_data = requests.get(url).content
-    users.update({message.chat.id: img_data})
+        img_data = requests.get(url).content
+        users.update({message.chat.id: img_data})
 
-    with open("gdz_image{}.png".format(users[message.chat.id]), 'wb') as handler:
-        handler.write(users[message.chat.id])
+        with open("gdz_image{}.png".format(users[message.chat.id]), 'wb') as handler:
+            handler.write(users[message.chat.id])
 
 
 
@@ -75,7 +79,6 @@ def gdz_API(result, message):
 @bot.message_handler(content_types=['text'])
 
 def start(message):
-    global stop
 
 
     if message.text == '/start':
