@@ -73,7 +73,8 @@ def gdz_API(result):
 
         with open("gdz_image.png", 'wb') as handler:
             handler.write(img_data)
-
+    else:
+        gdz_API(result)
 
 
 
