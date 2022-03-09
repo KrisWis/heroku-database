@@ -9,7 +9,6 @@ import logging
 from config import *
 from flask import Flask, request
 import psycopg2
-stop = False
 
 bot = telebot.TeleBot(BOT_TOKEN)
 server = Flask(__name__)
@@ -44,10 +43,6 @@ chrome_options.binary_location = os.environ.get("GOOGLE_CHROME_BIN")
 
 
 def gdz_API(result):
-    global stop
-
-    if not stop:
-        stop = True
         browser = mechanicalsoup.Browser()
         login_page = browser.get(URL)
         login_html = login_page.soup
@@ -67,14 +62,12 @@ def gdz_API(result):
         elem = driver.find_element(By.CLASS_NAME, 'with-overtask')
         item = elem.find_element(By.TAG_NAME, 'img')
         url = item.get_attribute('src')
-        stop = False
 
         img_data = requests.get(url).content
 
         with open("gdz_image.png", 'wb') as handler:
             handler.write(img_data)
-    else:
-        gdz_API(result)
+
 
 
 
