@@ -9,9 +9,6 @@ import logging
 from config import *
 from flask import Flask, request
 import psycopg2
-import time
-
-stop = False
 
 bot = telebot.TeleBot(BOT_TOKEN)
 server = Flask(__name__)
@@ -29,6 +26,9 @@ author = ''
 
 URL = 'https://gdz.ru/'
 HEADERS = {'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9', 'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.116 YaBrowser/22.1.1.1544 Yowser/2.5 Safari/537.36'}
+browser = mechanicalsoup.Browser()
+login_page = browser.get(URL)
+login_html = login_page.soup
 
 
 
@@ -42,20 +42,11 @@ chrome_options.add_argument("--headless")
 chrome_options.add_argument("--disable-dev-shm-usage")
 chrome_options.add_argument("--no-sandbox")
 chrome_options.binary_location = os.environ.get("GOOGLE_CHROME_BIN")
-
+driver = selenium.webdriver.Chrome(executable_path=os.environ.get("CHROMEDRIVER_PATH"),
+                                   chrome_options=chrome_options)
 
 
 def gdz_API(result):
-    global stop
-
-    if not stop:
-        stop = True
-        browser = mechanicalsoup.Browser()
-        login_page = browser.get(URL)
-        login_html = login_page.soup
-        driver = selenium.webdriver.Chrome(executable_path=os.environ.get("CHROMEDRIVER_PATH"),
-                                           chrome_options=chrome_options)
-
         form = login_html.select('form')[0]
         form.select('input')[0]['value'] = result
         profiles_page = browser.submit(form, URL)
@@ -69,15 +60,12 @@ def gdz_API(result):
         elem = driver.find_element(By.CLASS_NAME, 'with-overtask')
         item = elem.find_element(By.TAG_NAME, 'img')
         url = item.get_attribute('src')
-        stop = False
 
         img_data = requests.get(url).content
 
         with open("gdz_image.png", 'wb') as handler:
             handler.write(img_data)
-    else:
-        time.sleep(1)
-        gdz_API(result)
+
 
 
 
