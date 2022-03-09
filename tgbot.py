@@ -9,6 +9,8 @@ import logging
 from config import *
 from flask import Flask, request
 import psycopg2
+import time
+
 stop = False
 
 bot = telebot.TeleBot(BOT_TOKEN)
@@ -74,6 +76,7 @@ def gdz_API(result):
         with open("gdz_image.png", 'wb') as handler:
             handler.write(img_data)
     else:
+        time.sleep(1)
         gdz_API(result)
 
 
