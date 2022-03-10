@@ -9,27 +9,25 @@ import logging
 from config import *
 from flask import Flask, request
 
-
 bot = telebot.TeleBot(BOT_TOKEN)
 server = Flask(__name__)
 logger = telebot.logger
 logger.setLevel(logging.DEBUG)
 
 
-
 name_subject = ''
 class_subject = ''
 author = ''
 
-
+browser = mechanicalsoup.Browser()
 URL = 'https://gdz.ru/'
 HEADERS = {'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9', 'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.116 YaBrowser/22.1.1.1544 Yowser/2.5 Safari/537.36'}
-browser = mechanicalsoup.Browser()
+
+
+
+
 login_page = browser.get(URL)
 login_html = login_page.soup
-
-
-
 num = 1
 
 
@@ -39,32 +37,30 @@ chrome_options.add_argument("--headless")
 chrome_options.add_argument("--disable-dev-shm-usage")
 chrome_options.add_argument("--no-sandbox")
 chrome_options.binary_location = os.environ.get("GOOGLE_CHROME_BIN")
-driver = selenium.webdriver.Chrome(executable_path=os.environ.get("CHROMEDRIVER_PATH"),
-                                   chrome_options=chrome_options)
+
+driver = selenium.webdriver.Chrome(executable_path=os.environ.get("CHROMEDRIVER_PATH"), chrome_options=chrome_options)
 
 
 def gdz_API(result):
 
+    form = login_html.select('form')[0]
+    form.select('input')[0]['value'] = result
+    profiles_page = browser.submit(form, URL)
+
+    driver.get(profiles_page.url)
+
+    items = driver.find_elements(By.CLASS_NAME, 'gs-title')
 
 
-        form = login_html.select('form')[0]
-        form.select('input')[0]['value'] = result
-        profiles_page = browser.submit(form, URL)
+    driver.get(items[num].get_attribute('href'))
+    elem = driver.find_element(By.CLASS_NAME, 'with-overtask')
+    item = elem.find_element(By.TAG_NAME, 'img')
+    url = item.get_attribute('src')
 
-        driver.get(profiles_page.url)
+    img_data = requests.get(url).content
 
-        items = driver.find_elements(By.CLASS_NAME, 'gs-title')
-
-
-        driver.get(items[num].get_attribute('href'))
-        elem = driver.find_element(By.CLASS_NAME, 'with-overtask')
-        item = elem.find_element(By.TAG_NAME, 'img')
-        url = item.get_attribute('src')
-
-        img_data = requests.get(url).content
-
-        with open("gdz_image.jpg", 'wb') as handler:
-            handler.write(img_data)
+    with open('gdz_image.jpg', 'wb') as handler:
+        handler.write(img_data)
 
 
 
@@ -120,9 +116,8 @@ def callback_worker(call):
     if call.data == "yes":
         bot.send_message(call.message.chat.id, 'Начинаю поиск... '
                                                '\nПоиск завершится примерно через 9 секунд')
-
         gdz_API(result)
-        photo = open("gdz_image.jpg", 'rb')
+        photo = open('gdz_image.jpg', 'rb')
         bot.send_photo(call.message.chat.id, photo, 'Это то, что ты искал?')
         bot.register_next_step_handler(call.message,recheck)
 
@@ -141,7 +136,7 @@ def recheck(message):
         bot.send_message(message.from_user.id, rand_phrase)
         num += 4
         gdz_API(result)
-        photo = open("gdz_image.jpg", 'rb')
+        photo = open('gdz_image.jpg', 'rb')
         rand_phrase2 = random.choice(['Может быть это?', "Хм.. Может это?", 'Это то, что надо?', "May be это?", "Как насчёт этого?", "Это подойдёт?"])
         bot.send_photo(message.chat.id, photo, rand_phrase2)
         bot.register_next_step_handler(message,recheck)
