@@ -8,12 +8,15 @@ from selenium.webdriver.common.by import By
 import logging
 from config import *
 from flask import Flask, request
+import psycopg2
 
 bot = telebot.TeleBot(BOT_TOKEN)
 server = Flask(__name__)
 logger = telebot.logger
 logger.setLevel(logging.DEBUG)
 
+db_connection = psycopg2.connect(DB_URI, sslmode="require")
+db_object = db_connection.cursor()
 
 name_subject = ''
 class_subject = ''
@@ -57,6 +60,8 @@ def gdz_API(result):
     item = elem.find_element(By.TAG_NAME, 'img')
     url = item.get_attribute('src')
 
+
+
     img_data = requests.get(url).content
 
     with open('gdz_image.jpg', 'wb') as handler:
@@ -68,9 +73,11 @@ def gdz_API(result):
 @bot.message_handler(content_types=['text'])
 
 def start(message):
+    global stop
 
 
     if message.text == '/start':
+
 
         bot.send_message(message.from_user.id, 'Привет! Я бот, который поможет тебе с учёбой! \nТебе всего лишь надо ввести название учебника, его автора и номер, который нужно решить. '
                                                'Попробуй!')
