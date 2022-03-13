@@ -9,14 +9,12 @@ import logging
 from config import *
 from flask import Flask, request
 
-
-
-
-
 bot = telebot.TeleBot(BOT_TOKEN)
 server = Flask(__name__)
 logger = telebot.logger
 logger.setLevel(logging.DEBUG)
+
+
 
 name_subject = ''
 class_subject = ''
@@ -31,7 +29,7 @@ HEADERS = {'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,imag
 
 login_page = browser.get(URL)
 login_html = login_page.soup
-num = 1
+num = 0
 
 
 
@@ -61,24 +59,24 @@ def gdz_API(result):
     url = item.get_attribute('src')
 
 
+
     img_data = requests.get(url).content
+
     with open('gdz_image.jpg', 'wb') as handler:
         handler.write(img_data)
 
-@server.route(f'/{BOT_TOKEN}', methods=['POST'])
 
-def redirect_message():
-    json_string = request.get_data().decode("utf-8")
-    update = telebot.types.Update.de_json(json_string)
-    bot.process_new_updates([update])
-    return "!", 200
+
 
 @bot.message_handler(content_types=['text'])
 
 def start(message):
     global stop
 
+
     if message.text == '/start':
+
+
         bot.send_message(message.from_user.id, 'Привет! Я бот, который поможет тебе с учёбой! \nТебе всего лишь надо ввести название учебника, его автора и номер, который нужно решить. '
                                                'Попробуй!')
         bot.send_message(message.from_user.id, 'Напиши название предмета, класс, автора и номер, по которому надо найти ГДЗ.'
@@ -86,9 +84,16 @@ def start(message):
                                                'Математика, 5 класс, А.Г. Мерзляк, номер 120)')
 
         bot.register_next_step_handler(message, get_result_func)
+
+
     else:
         bot.send_message(message.from_user.id,
                          'Привет! Напиши /start для начала')
+
+
+
+
+
 
 def get_result_func(message):
     global name_subject
@@ -96,6 +101,7 @@ def get_result_func(message):
 
 
     result = message.text
+
     if len(result) >= 10:
         answer = 'Ты хочешь найти ГДЗ по запросу "{}"?'.format(result)
         keyboard = telebot.types.InlineKeyboardMarkup()
@@ -140,10 +146,15 @@ def recheck(message):
         bot.send_photo(message.chat.id, photo, rand_phrase2)
         bot.register_next_step_handler(message,recheck)
 
+@server.route(f"/{BOT_TOKEN}", methods=["POST"])
+def redirect_message():
+    json_string = request.get_data().decode("utf-8")
+    update = telebot.types.Update.de_json(json_string)
+    bot.process_new_updates([update])
+    return "!", 200
+
 
 if __name__ == "__main__":
     bot.remove_webhook()
     bot.set_webhook(url=APP_URL)
-    server.run(host="0.0.0.0", port=int(os.environ.get("PORT",5000)))
-
-bot.polling(non_stop=False, interval=0)
+    server.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
